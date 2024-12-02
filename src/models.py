@@ -43,6 +43,7 @@ class People(db.Model):
     __tablename__ = 'people'  
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
+    age = db.Column(db.String(250), nullable=False)
     origin_planet = db.Column(db.String(250), nullable=False)
     eye_color = db.Column(db.String(250), nullable=False)
     hair_color = db.Column(db.String(250), nullable=False)
@@ -60,15 +61,15 @@ class People(db.Model):
         }
 
 class Favorite(db.Model):
-    __tablename__ = 'favorites'  # Definir explícitamente el nombre de la tabla
+    __tablename__ = 'favorite'  
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # Usar 'users.id'
-    character_id = db.Column(db.Integer, db.ForeignKey('people.id'))  # Usar 'people.id'
-    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))  # Usar 'planets.id'
-
-    user = db.relationship('User', backref='favorites')  
-    people = db.relationship('People', backref='favorites')   
-    planet = db.relationship('Planet', backref='favorites')
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  
+    character_id = db.Column(db.Integer, db.ForeignKey('people.id'))  
+    planet_id = db.Column(db.Integer, db.ForeignKey('planet.id'))  
+  
+    user = db.relationship('User')
+    planet = db.relationship('Planet')
+    character = db.relationship('People')
 
     def __repr__(self):
         return '<Favorite %r>' % self.id
@@ -76,7 +77,7 @@ class Favorite(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "character_id": self.character_id,
-            "planet_id": self.planet_id
+            "user": self.user.serialize() if self.user else None,  
+            "character": self.character.serialize() if self.character else None, 
+            "planet": self.planet.serialize() if self.planet else None  
         }
